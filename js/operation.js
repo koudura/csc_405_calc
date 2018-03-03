@@ -9,22 +9,10 @@ var Trig = {
     arcsin: "asin(",
     arccos: "acos("
 };
-var Ops = ["√", "^", "mod", "!", "x", "÷", "+", "-"];
+var Ops = ["+", "-", "x", "÷", "^", "√", "mod", "!"];
 var shift_on = false;
 var ins = Array();
 
-function Shift() {
-    var sb = document.getElementById("to_shift");
-    if (shift_on === true) {
-        sb.style.color = "white";
-        sb.style.backgroundColor = "steelblue";
-        shift_on = false;
-    } else {
-        sb.style.color = "red";
-        sb.style.backgroundColor = "darkblue";
-        shift_on = true;
-    }
-}
 
 
 var isOperand = function (_in) {
@@ -81,14 +69,35 @@ var operators = {
             return a * b;
         }
     },
-    "/": {
+    "÷": {
         "isp": 4, "icp": 3, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a / b;
         }
     },
     "^": {
-        "isp": 5, "icp": 6, "assoc": 1, "urnary": 1, "func": function (a, b) {
+        "isp": 5, "icp": 6, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return Math.pow(a, b);
+        }
+    },
+    "√": {
+        "isp": 5, "icp": 6, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.sqrt(n);
+        }
+    },
+    "mod": {
+        "isp": 3, "icp": 2, "assoc": 0, "urnary": 0, "func": function (a, b) {
+            return a % b;
+        }
+    },
+    "!": {
+        "isp": 6, "icp": 7, "assoc": 1, "urnary": 0, "func": function (n) {
+            var x = n;
+            if (n == 0 || n == 1) { return 1; } else {
+                for (var i = n - 1; i > 0; i--) {
+                    x *= i;
+                }
+            }
+            return x;
         }
     },
     ")": { "isp": -1, "icp": 0, "assoc": 0, "urnary": 0 }
@@ -109,10 +118,15 @@ var isTrig = function (str) {
 }
 
 function handleOperator(op) {
-    for()
+    for (var i = 0; i < Ops.length; i++) {
+        if (Ops[i] == op) {
+            ins.push(Ops[i]);
+        }
+    }
+    display();
 }
 
-function handleConst(constant){
+function handleConst(constant) {
 
 }
 
@@ -136,13 +150,13 @@ function PostoInf(str) {
 
     for (var i = 0; i < str.length; i++) {
         if (isOperand(str[i])) {
-            pos.add(str[i]);
+            post.push(str[i]);
         } else if (str[i] == "(") {
             _stack.push(str[i]);
         } else if (str[i] == ")") {
             while (_stack.length > 0 && _stack[_stack.length - 1] != "(") {
                 var x = _stack.pop();
-                post.add(x);
+                post.push(x);
             }
             _stack.pop();
         } else if (isOperator(str[i])) {
@@ -151,15 +165,16 @@ function PostoInf(str) {
             } else {
                 while (_stack.length > 0 && _stack[_stack.length - 1] != "("
                     && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp) {
-                    post.add(_stack.pop());
+                    post.push(_stack.pop());
                 }
                 _stack.push(str[i]);
             }
         }
     }
     while (_stack.length > 0) {
-        post.add(_stack.pop());
+        post.push(_stack.pop());
     }
+    return post;
 }
 
 function Eval(post) {
@@ -177,14 +192,47 @@ function Eval(post) {
 }
 
 function Evaluate() {
-
+    var output = PostoInf(ins);
+    var disp = Eval(output);
+    ins = new Array();
+    ins.push(disp);
+    display();
 }
 
+function Shift() {
+    var sb = document.getElementById("to_shift");
+    if (shift_on === true) {
+        sb.style.color = "white";
+        sb.style.backgroundColor = "steelblue";
+        shift_on = false;
+    } else {
+        sb.style.color = "red";
+        sb.style.backgroundColor = "darkblue";
+        shift_on = true;
+    }
+}
+
+
 function Del() {
-    var peek = ins.pop();
-    peek = peek.toString();
-    ins.push(peek.substring(0, peek.length - 1));
-    display();
+    var peek = ins[ins.length - 1]
+    if (peek != undefined) {
+        if(isOperand(peek) || isOperator(peek)){
+            peek = peek.substring(0,peek.length -1);
+            if(peek = ""){
+                ins.pop();
+            }else {
+                ins.pop();
+                ins.push(peek);
+            }
+        }else{
+            ins.pop();
+        }
+        display();
+    }
+
+    // peek = peek.toString();
+    // ins.push(peek.substring(0, peek.length - 1));
+    // display();
 }
 
 function Clear() {
