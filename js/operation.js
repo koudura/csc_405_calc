@@ -50,42 +50,42 @@ function AddValue(str) {
 var operators = {
     "(": { "isp": 0, "icp": 9, "assoc": 0, "urnary": 0 },
     "+": {
-        "isp": 2, "icp": 1, "assoc": 0, "urnary": 0, "func": function (a, b) {
+        "isp": 2, "icp": 1, "pre": 1, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a + b;
         }
     },
     "-": {
-        "isp": 2, "icp": 1, "assoc": 0, "urnary": 0, "func": function (a, b) {
+        "isp": 2, "icp": 1, "pre": 1, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a - b;
         }
     },
     "x": {
-        "isp": 4, "icp": 3, "assoc": 0, "urnary": 0, "func": function (a, b) {
+        "isp": 4, "icp": 3, "pre": 3, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a * b;
         }
     },
     "÷": {
-        "isp": 4, "icp": 3, "assoc": 0, "urnary": 0, "func": function (a, b) {
+        "isp": 4, "icp": 3, "pre": 3, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a / b;
         }
     },
     "^": {
-        "isp": 5, "icp": 6, "assoc": 0, "urnary": 0, "func": function (a, b) {
+        "isp": 5, "icp": 6, "pre": 6, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return Math.pow(a, b);
         }
     },
     "√": {
-        "isp": 5, "icp": 6, "assoc": 1, "urnary": 1, "func": function (n) {
+        "isp": 5, "icp": 6, "pre": 6, "assoc": 1, "urnary": 1, "func": function (n) {
             return Math.sqrt(n);
         }
     },
     "mod": {
-        "isp": 3, "icp": 2, "assoc": 0, "urnary": 0, "func": function (a, b) {
+        "isp": 3, "icp": 2, "pre": 2, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a % b;
         }
     },
     "!": {
-        "isp": 6, "icp": 7, "assoc": 1, "urnary": 0, "func": function (n) {
+        "isp": 6, "icp": 7, "pre": 7, "assoc": 1, "urnary": 0, "func": function (n) {
             var x = n;
             if (n == 0 || n == 1) { return 1; } else {
                 for (var i = n - 1; i > 0; i--) {
@@ -158,7 +158,7 @@ function PostoInf(str) {
                 _stack.push(str[i]);
             } else {
                 while (_stack.length > 0 && _stack[_stack.length - 1] != "("
-                    && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp) {
+                    && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp && operators[str[i]].assoc == 0) {
                     post.push(_stack.pop());
                 }
                 _stack.push(str[i]);
