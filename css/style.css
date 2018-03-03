@@ -1,0 +1,115 @@
+@font-face {
+    font-family: 'Digital-7';
+    src: url('digital-7/digital-7.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background-color: darkslategrey;
+}
+
+#container {
+    background-color: lightgray;
+    height: 515px;
+    width: 400px;
+    border-radius: 2px;
+    position: relative;
+    top: 100px;
+    left: 40%;
+}
+
+.screen {
+    background-color: darkgray;
+    width: 400px;
+    height: 120px;
+    position: relative;
+}
+
+.screen input {
+    position: relative;
+    height: 120px;
+    width: 394px;
+    color: white;
+    background-color: black;
+    font-size: 40px;
+    font-family: "Digital-7";
+    text-align: right;
+}
+
+.inputs {
+  
+    position: relative;
+    margin: 0%;
+    left: 1px;
+}
+
+.bt {
+    width: 76px;
+    height: 52px;
+    font-family: "Consolas";
+    font-weight: bold;
+    font-size: 16px;
+    /* border: none; */
+    padding: 0%;
+    margin: 0%;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.bt.black {
+    color: white;
+    background-color: black;
+}
+
+.bt.black:hover{
+    background-color: rgb(65, 65, 65);
+    color: white;
+}
+
+.bt.red {
+    color: white;
+    background-color: red;
+}
+.bt.red:hover{
+    color: white;
+    background-color: darkred;
+}
+
+.bt.silver {
+    color: black;
+    background-color: silver;
+}
+.bt.silver:hover {
+    color : white;
+    background-color: rgb(65, 62, 62);
+
+}
+
+.bt.white {
+    color: black;
+    background-color: white;
+}
+.bt.white:hover {
+    background-color: rgb(105,97,97);
+    color: white;
+}
+
+.bt.blue {
+    color: white;
+    background-color: steelblue;
+}
+.bt.blue:hover{
+    color: white;
+    background-color: darkblue;
+}
+
+.bt.white#eval:hover{
+    color: white;
+    background-color: steelblue;
+}
+#br {
+    height : 8px;
+    border: 2px;
+    color:darkgrey;
+}
