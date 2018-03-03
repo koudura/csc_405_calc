@@ -13,20 +13,7 @@ var Ops = ["√", "^", "mod", "!", "x", "÷", "+", "-", "e", "π"];
 var shift_on = false;
 var ins = Array();
 
-function Token(str) {
-    calc.display.Value += str;
-}
-
-function AddValue(str) {
-    calc.display.value += str;
-}
-
-function Tokenize(in_str) {
-    this.input = in_str;
-    this.tokens = new Array();
-}
-
-function isOperand(_in) {
+var isOperand = function (_in) {
     return !isNaN(_in);
 }
 
@@ -34,9 +21,37 @@ var isOperator = function (str) {
     return Ops.includes(str);
 };
 
+var isDigit = function (n) {
+    var numReg = /[0-9]/i;
+    return numReg.test(n);
+}
+
+
+function AddValue(str) {
+    var val = str.toString();
+    var peek = ins[ins.length - 1];
+    if (peek === null || peek === undefined) {
+        ins.push(val);
+    } else if (peek.includes(".") || isDigit(peek)) {
+        ins.push(ins.pop().toString() + val);
+    } else if (peek == "-") {
+        var dp = ins[ins.length - 2];
+        if (dp === undefined || dp === null || dp == "(" || isOperator(dp)) {
+            ins.push(ins.pop().toString() + val);
+        } else if (isTrig(dp)) {
+            neg = ins.pop().toString();
+            ins.push(ins.pop().toString() + neg + str);
+        }
+    } else if (isTrig(peek)) {
+        ins.push(ins.pop().toString() + str)
+    } else {
+        ins.push(str);
+    }
+    display();
+}
 
 var operators = {
-    "(": {"isp": 0, "icp": 9, "assoc": 0, "urnary": 0},
+    "(": { "isp": 0, "icp": 9, "assoc": 0, "urnary": 0 },
     "+": {
         "isp": 2, "icp": 1, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a + b;
@@ -62,12 +77,21 @@ var operators = {
             return Math.pow(a, b);
         }
     },
-    ")": {"isp": -1, "icp": 0, "assoc": 0, "urnary": 0}
+    ")": { "isp": -1, "icp": 0, "assoc": 0, "urnary": 0 }
 };
 
+var trigs = ["sin(", "cos(", "tan(", "log(", "abs(", "ln(", "acos(", "asin(", "atan("];
 function handleTrig(trig) {
-    var trigs = ["sin", "cos", "tan", "log", "abs", "ln", "acos", "asin", "atan"];
-    calc.display.value += Trig[trig].toLowerCase();
+
+
+}
+
+var isTrig = function (str) {
+    for (x in trigs) {
+        if (x == str) {
+            return true;
+        }
+    }
 }
 
 function handleOperator(operator) {
@@ -75,7 +99,15 @@ function handleOperator(operator) {
 }
 
 function AddPoint(str) {
-
+    var peek = ins[ins.length - 1];
+    if (peek === null || peek === undefined) {
+        ins.push(str);
+    } else if (!peek.includes(".")) {
+        ins.push(ins.pop().toString() + str);
+    } else {
+        ins.push(str);
+    }
+    display();
 }
 
 function AddBrace(str) {
@@ -97,6 +129,7 @@ function Shift() {
 }
 
 
+
 function PostoInf(str) {
     var post = Array();
     var _stack = Array();
@@ -104,20 +137,20 @@ function PostoInf(str) {
     for (var i = 0; i < str.length; i++) {
         if (isOperand(str[i])) {
             pos.add(str[i]);
-        } else if (str[i] === "(") {
+        } else if (str[i] == "(") {
             _stack.push(str[i]);
-        } else if (str[i] === ")") {
-            while (_stack.length > 0 && _stack[_stack.length - 1] !== "(") {
+        } else if (str[i] == ")") {
+            while (_stack.length > 0 && _stack[_stack.length - 1] != "(") {
                 var x = _stack.pop();
                 post.add(x);
             }
             _stack.pop();
         } else if (isOperator(str[i])) {
-            if (_stack.length <= 0 || _stack[_stack.length - 1] !== "(") {
+            if (_stack.length <= 0 || _stack[_stack.length - 1] != "(") {
                 _stack.push(str[i]);
             } else {
-                while (_stack.length > 0 && _stack[_stack.length - 1] !== "("
-                && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp) {
+                while (_stack.length > 0 && _stack[_stack.length - 1] != "("
+                    && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp) {
                     post.add(_stack.pop());
                 }
                 _stack.push(str[i]);
@@ -137,8 +170,33 @@ function Eval(post) {
         } else if (isOperator(post[i])) {
             var A = Number(_stack.pop());
             var B = Number(_stack.pop());
-            _stack.push(operators[post[i]].func(B,A).toString());
+            _stack.push(operators[post[i]].func(B, A).toString());
         }
     }
     return _stack.pop();
 }
+
+function Evaluate() {
+
+}
+
+function Del() {
+    var peek = ins.pop();
+    peek = peek.toString();
+    ins.push(peek.substring(0, peek.length - 1));
+    display();
+}
+
+function Clear() {
+    ins = new Array();
+    display();
+}
+
+function display() {
+    var v = ins.join()
+    calc.display.value = st(v).toString();
+}
+var st = function (v) {
+    return v.replace(/,/g, "");
+};
+
