@@ -1,14 +1,4 @@
-var Trig = {
-    sin: "sin(",
-    cos: "cos(",
-    tan: "tan(",
-    abs: "abs(",
-    log: "log(",
-    ln: "ln(",
-    arctan: "atan(",
-    arcsin: "asin(",
-    arccos: "acos("
-};
+var trigs = ["sin(", "cos(", "tan(", "log(", "abs(", "ln(", "acos(", "asin(", "atan("];
 var Ops = ["+", "-", "x", "÷", "^", "√", "mod", "!"];
 var shift_on = false;
 var ins = Array();
@@ -19,8 +9,8 @@ var isOperand = function (_in) {
     return !isNaN(_in);
 }
 
-var isOperator = function (str) {
-    return Ops.includes(str);
+var isOperator = function (o_p) {
+    return Ops.includes(o_p);
 };
 
 var isDigit = function (n) {
@@ -36,6 +26,10 @@ function AddValue(str) {
         ins.push(val);
     } else if (peek.includes(".") || isDigit(peek)) {
         ins.push(ins.pop().toString() + val);
+    } else if (isTrig(peek) == true) {
+        var x = ins.pop();
+        ins.push(x + str);
+        alert("istrig");
     } else if (peek == "-") {
         var dp = ins[ins.length - 2];
         if (dp === undefined || dp === null || dp == "(" || isOperator(dp)) {
@@ -43,10 +37,11 @@ function AddValue(str) {
         } else if (isTrig(dp)) {
             neg = ins.pop().toString();
             ins.push(ins.pop().toString() + neg + str);
+        } else {
+            ins.push(str);
         }
-    } else if (isTrig(peek)) {
-        ins.push(ins.pop().toString() + str)
-    } else {
+    }
+    else {
         ins.push(str);
     }
     display();
@@ -103,18 +98,17 @@ var operators = {
     ")": { "isp": -1, "icp": 0, "assoc": 0, "urnary": 0 }
 };
 
-var trigs = ["sin(", "cos(", "tan(", "log(", "abs(", "ln(", "acos(", "asin(", "atan("];
+
 function handleTrig(trig) {
 
 
 }
 
-var isTrig = function (str) {
-    for (x in trigs) {
-        if (x == str) {
-            return true;
-        }
+function isTrig(t) {
+    for (var i = 0; i < trigs.length; i++) {
+        if (trigs[i] == t) { return true; }
     }
+    return false;
 }
 
 function handleOperator(op) {
@@ -216,23 +210,19 @@ function Shift() {
 function Del() {
     var peek = ins[ins.length - 1]
     if (peek != undefined) {
-        if(isOperand(peek) || isOperator(peek)){
-            peek = peek.substring(0,peek.length -1);
-            if(peek = ""){
+        if (isOperand(peek)) {
+            var pp = peek.substring(0, peek.length - 1)
+            if (pp == "") {
                 ins.pop();
-            }else {
+            } else {
                 ins.pop();
-                ins.push(peek);
+                ins.push(pp);
             }
-        }else{
+        } else {
             ins.pop();
         }
-        display();
     }
-
-    // peek = peek.toString();
-    // ins.push(peek.substring(0, peek.length - 1));
-    // display();
+    display();
 }
 
 function Clear() {
