@@ -9,9 +9,23 @@ var Trig = {
     arcsin: "asin(",
     arccos: "acos("
 };
-var Ops = ["√", "^", "mod", "!", "x", "÷", "+", "-", "e", "π"];
+var Ops = ["√", "^", "mod", "!", "x", "÷", "+", "-"];
 var shift_on = false;
 var ins = Array();
+
+function Shift() {
+    var sb = document.getElementById("to_shift");
+    if (shift_on === true) {
+        sb.style.color = "white";
+        sb.style.backgroundColor = "steelblue";
+        shift_on = false;
+    } else {
+        sb.style.color = "red";
+        sb.style.backgroundColor = "darkblue";
+        shift_on = true;
+    }
+}
+
 
 var isOperand = function (_in) {
     return !isNaN(_in);
@@ -94,7 +108,11 @@ var isTrig = function (str) {
     }
 }
 
-function handleOperator(operator) {
+function handleOperator(op) {
+    for()
+}
+
+function handleConst(constant){
 
 }
 
@@ -104,8 +122,6 @@ function AddPoint(str) {
         ins.push(str);
     } else if (!peek.includes(".")) {
         ins.push(ins.pop().toString() + str);
-    } else {
-        ins.push(str);
     }
     display();
 }
@@ -113,22 +129,6 @@ function AddPoint(str) {
 function AddBrace(str) {
 
 }
-
-function Shift() {
-    var sb = document.getElementsById("to_shift");
-    alert("shift false");
-    if (shift_on === true) {
-        //   sb.style.backgroundColor = "steelblue";
-        alert("shift off");
-        shift_on = false;
-    } else {
-        //  sb.style.backgroundColor = "darkblue";
-        alert("shift on");
-        shift_on = true;
-    }
-}
-
-
 
 function PostoInf(str) {
     var post = Array();
