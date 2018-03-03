@@ -117,15 +117,28 @@ function PostoInf(str) {
                 _stack.push(str[i]);
             } else {
                 while (_stack.length > 0 && _stack[_stack.length - 1] !== "("
-                && operators[_stack[_stack.length - 1]]["isp"] >= operators[str[i]]["icp"]) {
+                && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp) {
                     post.add(_stack.pop());
                 }
                 _stack.push(str[i]);
             }
         }
     }
-    while(_stack.length > 0){
+    while (_stack.length > 0) {
         post.add(_stack.pop());
     }
+}
 
+function Eval(post) {
+    var _stack = new Array();
+    for (var i = 0; i < post.length; i++) {
+        if (isOperand(post[i])) {
+            _stack.push(post[i]);
+        } else if (isOperator(post[i])) {
+            var A = Number(_stack.pop());
+            var B = Number(_stack.pop());
+            _stack.push(operators[post[i]].func(B,A).toString());
+        }
+    }
+    return _stack.pop();
 }
