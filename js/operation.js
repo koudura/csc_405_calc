@@ -4,7 +4,6 @@ var shift_on = false;
 var ins = Array();
 
 
-
 var isOperand = function (_in) {
     return !isNaN(_in);
 }
@@ -26,17 +25,16 @@ function AddValue(str) {
         ins.push(val);
     } else if (peek.includes(".") || isDigit(peek)) {
         ins.push(ins.pop().toString() + val);
-    } else if (isTrig(peek) == true) {
-        var x = ins.pop();
-        ins.push(x + str);
-        alert("istrig");
+        // } else if (isTrig(peek) == true) {
+        //     var x = ins.pop();
+        //     ins.push(x + str);
     } else if (peek == "-") {
         var dp = ins[ins.length - 2];
         if (dp === undefined || dp === null || dp == "(" || isOperator(dp)) {
             ins.push(ins.pop().toString() + val);
-        } else if (isTrig(dp)) {
-            neg = ins.pop().toString();
-            ins.push(ins.pop().toString() + neg + str);
+            // } else if (isTrig(dp)) {
+            //     neg = ins.pop().toString();
+            //     ins.push(ins.pop().toString() + neg + str);
         } else {
             ins.push(str);
         }
@@ -48,7 +46,7 @@ function AddValue(str) {
 }
 
 var operators = {
-    "(": { "isp": 0, "icp": 9, "assoc": 0, "urnary": 0 },
+    "(": {"isp": 0, "icp": 9, "assoc": 0, "urnary": 0},
     "+": {
         "isp": 2, "icp": 1, "pre": 1, "assoc": 0, "urnary": 0, "func": function (a, b) {
             return a + b;
@@ -85,9 +83,11 @@ var operators = {
         }
     },
     "!": {
-        "isp": 6, "icp": 7, "pre": 7, "assoc": 1, "urnary": 0, "func": function (n) {
+        "isp": 6, "icp": 7, "pre": 7, "assoc": 1, "urnary": 1, "func": function (n) {
             var x = n;
-            if (n == 0 || n == 1) { return 1; } else {
+            if (n === 0 || n === 1) {
+                return 1;
+            } else {
                 for (var i = n - 1; i > 0; i--) {
                     x *= i;
                 }
@@ -95,18 +95,75 @@ var operators = {
             return x;
         }
     },
-    ")": { "isp": -1, "icp": 0, "assoc": 0, "urnary": 0 }
+    "sin(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.sin(n)
+        }
+    },
+    "cos(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.cos(n)
+        }
+    },
+    "tan(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.tan(n)
+        }
+    },
+    "asin(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.asin(n)
+        }
+    },
+    "acos(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.acos(n)
+        }
+    },
+    "atan(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.atan(n)
+        }
+    },
+    "log(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.log(n)
+        }
+    },
+    "ln(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": Math.LN2
+    },
+    "abs(": {
+        "isp": 4, "icp": 5, "pre": 5, "assoc": 1, "urnary": 1, "func": function (n) {
+            return Math.cos(n)
+        }
+    },
+    ")": {"isp": -1, "icp": 0, "assoc": 0, "urnary": 0}
 };
 
 
 function handleTrig(trig) {
-
-
+    if (shift_on) {
+        switch (trig) {
+            case "sin":
+                ins.push(trigs[7]);
+                break;
+            case "cos":
+                ins.push(trigs[6]);
+                break;
+            case "tan":
+                ins.push(trigs[8]);
+                break;
+        }
+    }
+    display();
 }
 
 function isTrig(t) {
     for (var i = 0; i < trigs.length; i++) {
-        if (trigs[i] == t) { return true; }
+        if (trigs[i] == t) {
+            return true;
+        }
     }
     return false;
 }
@@ -134,6 +191,7 @@ function AddPoint(str) {
     display();
 }
 
+
 function AddBrace(str) {
 
 }
@@ -145,9 +203,9 @@ function PostoInf(str) {
     for (var i = 0; i < str.length; i++) {
         if (isOperand(str[i])) {
             post.push(str[i]);
-        } else if (str[i] == "(") {
+        } else if (str[i] === "(") {
             _stack.push(str[i]);
-        } else if (str[i] == ")") {
+        } else if (str[i] === ")") {
             while (_stack.length > 0 && _stack[_stack.length - 1] != "(") {
                 var x = _stack.pop();
                 post.push(x);
@@ -158,7 +216,7 @@ function PostoInf(str) {
                 _stack.push(str[i]);
             } else {
                 while (_stack.length > 0 && _stack[_stack.length - 1] != "("
-                    && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp && operators[str[i]].assoc == 0) {
+                && operators[_stack[_stack.length - 1]].isp >= operators[str[i]].icp) {
                     post.push(_stack.pop());
                 }
                 _stack.push(str[i]);
@@ -209,14 +267,14 @@ function Shift() {
 
 function Del() {
     var peek = ins[ins.length - 1]
-    if (peek != undefined) {
+    if (peek !== undefined) {
         if (isOperand(peek)) {
-            var pp = peek.substring(0, peek.length - 1)
-            if (pp == "") {
+            var peek = peek.substring(0, peek.length - 1)
+            if (peek == "") {
                 ins.pop();
             } else {
                 ins.pop();
-                ins.push(pp);
+                ins.push(peek);
             }
         } else {
             ins.pop();
@@ -234,6 +292,7 @@ function display() {
     var v = ins.join()
     calc.display.value = st(v).toString();
 }
+
 var st = function (v) {
     return v.replace(/,/g, "");
 };
