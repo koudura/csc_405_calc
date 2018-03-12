@@ -1,5 +1,6 @@
 var shift_on = false;
 var ins = [];
+var _syntax = [];
 
 function AddValue(str) {
     var val = str.toString();
@@ -25,7 +26,7 @@ function AddValue(str) {
 
 function handleTrig(trig) {
     if (shift_on) {
-        switch (trig) {
+        switch (trig.substring(0, 3)) {
             case "sin":
                 ins.push(trigs[7]);
                 break;
@@ -62,48 +63,96 @@ function handleConst(constant) {
     display();
 }
 
+//point or float sign control//
 function AddPoint(str) {
     var peek = ins[ins.length - 1];
     if (peek === null || peek === undefined) {
         ins.push(str);
     } else if (!peek.includes(".")) {
-        ins.push(ins.pop().toString() + str);
+        if (isOperand(peek)) {
+            ins.push(ins.pop().toString() + str);
+        } else {
+            ins.push(str);
+        }
     }
     display();
 }
 
-
 function AddBrace(str) {
+    var eye = peek(ins);
+    if (eye === null || eye === undefined) {
+        ins.push(str);
+    } else {
+        if (str === "(") {
+            ins.push(str);
+        } else if (eye.includes("(")) {
+            ins.push(str);
+        }
+    }
+
+    display();
+}
+
+var isnegated = false;
+
+function negate() {
+    var current = peek(ins);
+    if (isOperand(current)) {
+        AddBrace("(");
+        var cur = "-" + ins.pop();
+        ins.push(cur);
+        AddBrace(")");
+        isnegated = true;
+
+    }
 
 }
 
+function resolvConsts() {
+    for (i = 0; i < ins.length; i++) {
+
+    }
+}
+
 function Evaluate() {
+
     var output = parseToPostfix(ins);
-    var result = eval(output);
+    var result = Eval(output);
     ins = [];
     ins.push(result);
     display();
+    ins = [];
 }
 
 function Shift() {
     var sb = document.getElementById("to_shift");
+    var _sin = document.getElementById("sin");
+    var _cos = document.getElementById("cos");
+    var _tan = document.getElementById("tan");
+
     if (shift_on === true) {
+        _sin.value = "sin";
+        _cos.value = "cos";
+        _tan.value = "tan";
         sb.style.color = "white";
         sb.style.backgroundColor = "steelblue";
         shift_on = false;
     } else {
+        _sin.value = "sin¯¹";
+        _cos.value = "cos¯¹";
+        _tan.value = "tan¯¹";
         sb.style.color = "red";
         sb.style.backgroundColor = "darkblue";
         shift_on = true;
     }
 }
 
-
+//handles deletion//
 function Del() {
     var top = peek(ins);
     if (top !== undefined) {
         if (isOperand(top)) {
-            var tp = top.substring(0, peek.length - 1)
+            var tp = top.substring(0, top.length - 1)
             if (tp === "") {
                 ins.pop();
             } else {
@@ -117,6 +166,7 @@ function Del() {
     display();
 }
 
+//clears input screen//
 function Clear() {
     ins = [];
     display();

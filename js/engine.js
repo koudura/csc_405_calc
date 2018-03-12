@@ -50,32 +50,32 @@ var operators = {
     },
     "sin(": {
         "pre": 5, "rule": 1, "urnary": 1, "func": function (n) {
-            return Math.sin(n)
+            return Math.sin(n * Math.PI / 180);
         }
     },
     "cos(": {
         "pre": 5, "rule": 1, "urnary": 1, "func": function (n) {
-            return Math.cos(n)
+            return Math.cos(n * Math.PI / 180);
         }
     },
     "tan(": {
         "pre": 5, "rule": 1, "urnary": 1, "func": function (n) {
-            return Math.tan(n)
+            return Math.tan(n * Math.PI / 180)
         }
     },
     "asin(": {
         "pre": 5, "rule": 1, "urnary": 1, "func": function (n) {
-            return Math.asin(n)
+            return Math.asin(n) * 180 / Math.PI;
         }
     },
     "acos(": {
         "pre": 5, "rule": 1, "urnary": 1, "func": function (n) {
-            return Math.acos(n)
+            return Math.acos(n) * 180 / Math.PI;
         }
     },
     "atan(": {
         "pre": 5, "rule": 1, "urnary": 1, "func": function (n) {
-            return Math.atan(n)
+            return Math.atan(n) * 180 / Math.PI;
         }
     },
     "log(": {
@@ -146,29 +146,35 @@ function parseToPostfix(_infix) {
         }
     }
     while (_stack.length > 0) {
+        var s = peek(_stack);
+        if (s === "(" || s === ")") {
+            break;
+        }
         _post.push(_stack.pop());
     }
     return _post;
 }
 
-function eval(_postfix) {
-    _out = [];
-    for (i = 0; i < _postfix.length; i++) {
-        var t = _postfix[i];
-        if (isOperand((t))) {
-            _out.push(t);
-        } else {
-            if (operators[t].urnary) {
-                e = Number(_out.pop());
-                _out.push(operators[t].func(e).toString());
+function Eval(_postfix) {
+    if (!_postfix.includes("(") && !_postfix.includes(")")) {
+        _out = [];
+        for (i = 0; i < _postfix.length; i++) {
+            var t = _postfix[i];
+            if (isOperand((t))) {
+                _out.push(t);
             } else {
-                a = Number(_out.pop());
-                b = Number(_out.pop());
-                _out.push(operators[t].func(b, a).toString());
+                if (operators[t].urnary) {
+                    e = Number(_out.pop());
+                    _out.push(operators[t].func(e).toString());
+                } else {
+                    a = Number(_out.pop());
+                    b = Number(_out.pop());
+                    _out.push(operators[t].func(b, a).toString());
+                }
             }
         }
+        return _out[0];
     }
-    return _out[0];
 }
 
 

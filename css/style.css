@@ -32,8 +32,9 @@ body {
     width: 394px;
     color: white;
     background-color: black;
-    font-size: 40px;
-    font-family: "Digital-7";
+    font-size: 34px;
+    font-family: "Consolas";
+    font-weight: bold;
     text-align: right;
 }
 
