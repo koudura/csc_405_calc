@@ -37,7 +37,7 @@
 		<input type="button" value="abs" class="bt silver" onclick="handleTrig(this.value)">
 		<input type="button" value="ln" class="bt silver" onclick="handleTrig(this.value)">
 		<br>
-		<input type="button" value="%" class="bt silver" onclick="">
+		<input type="button" value="%" class="bt silver" onclick="handleOperator(this.value)">
 		<input type="button" value="(" class="bt silver" onclick="AddBrace(this.value)">
 		<input type="button" value=")" class="bt silver" onclick="AddBrace(this.value)">
 		<input type="button" value="!" class="bt silver" onclick="handleOperator(this.value)">
@@ -62,7 +62,7 @@
 			<input type="button" value="+" class="bt white" onclick="handleOperator(this.value)">
 			<input type="button" value="-" class="bt white" onclick="handleOperator(this.value)">
 			<br>
-			<input type="button" value="e" class="bt white" onclick="handleConst(this.value)">
+			<input type="button" value="e" class="bt white" id = "exp" onclick="handleConst(this.value)">
 			<input type="button" value="0" class="bt white" onclick="AddValue(this.value)">
 			<input type="button" value="." class="bt white" onclick="AddPoint(this.value)">
 			<input type="button" value="π" class="bt white" onclick="handleConst(this.value)">

@@ -1,17 +1,17 @@
-var shift_on = false;
-var ins = [];
-var _syntax = [];
+shift_on = false;
+ins = [];
+_syntax = [];
 
 function AddValue(str) {
-    var val = str.toString();
-    var pk = peek(ins);
+    let val = str.toString();
+    let pk = peek(ins);
     if (pk === null || pk === undefined) {
         ins.push(val);
     } else if (pk.includes(".") || isDigit(pk)) {
         ins.push(ins.pop().toString() + val);
-    } else if (pk === "-") {
-        var dp = ins[ins.length - 2];
-        if (dp === undefined || dp === null || dp === "(" || isOperator(dp)) {
+    } else if (pk === "-" || pk === "+") {
+        let dp = ins[ins.length - 2];
+        if (dp === undefined || dp === null || dp === "(" || isOperator(dp) || dp[dp.length - 1] === "(") {
             ins.push(ins.pop().toString() + val);
         } else {
             ins.push(str);
@@ -20,6 +20,7 @@ function AddValue(str) {
     else {
         ins.push(str);
     }
+    _isnegated = false;
     display();
 }
 
@@ -39,33 +40,42 @@ function handleTrig(trig) {
         }
     } else {
         for (i = 0; i < 6; i++) {
-            var temp = trigs[i].substring(0, trigs[i].length - 1);
+            let temp = trigs[i].substring(0, trigs[i].length - 1);
             if (trig === temp) {
                 ins.push(trigs[i]);
                 break;
             }
         }
     }
+    _isnegated = false;
     display();
 }
 
+//operators handler
 function handleOperator(op) {
-    for (var i = 0; i < Ops.length; i++) {
+    for (let i = 0; i < Ops.length; i++) {
         if (Ops[i] === op) {
             ins.push(Ops[i]);
         }
     }
+    _isnegated = false;
     display();
 }
 
+//constants control handler
 function handleConst(constant) {
-    ins.push(constant);
+    if (shift_on && constant === "eⁿ") {
+        ins.push("e(");
+    } else {
+        ins.push(constant);
+    }
+    _isnegated = false;
     display();
 }
 
 //point or float sign control//
 function AddPoint(str) {
-    var peek = ins[ins.length - 1];
+    let peek = ins[ins.length - 1];
     if (peek === null || peek === undefined) {
         ins.push(str);
     } else if (!peek.includes(".")) {
@@ -75,65 +85,87 @@ function AddPoint(str) {
             ins.push(str);
         }
     }
+    _isnegated = false;
     display();
 }
 
+//braces control handler
 function AddBrace(str) {
-    var eye = peek(ins);
-    if (eye === null || eye === undefined) {
-        ins.push(str);
-    } else {
-        if (str === "(") {
-            ins.push(str);
-        } else if (eye.includes("(")) {
-            ins.push(str);
-        }
-    }
-
+    ins.push(str);
     display();
 }
 
-var isnegated = false;
+_isnegated = false;
 
+//negator --- denagator
 function negate() {
-    var current = peek(ins);
-    if (isOperand(current)) {
-        AddBrace("(");
-        var cur = "-" + ins.pop();
-        ins.push(cur);
-        AddBrace(")");
-        isnegated = true;
+    let current = peek(ins);
 
+    function getNegationValue() {
+        let val = `${ins[ins.length - 3]}${ins[ins.length - 2]}${current}`;
+        return val.startsWith("(") && val[1] === "-" && val.endsWith(")") && _isnegated;
     }
 
+    if (isOperand(current) && !_isnegated) {
+
+        let cur = "-" + ins.pop();
+        ins.push("(");
+        ins.push(cur);
+        ins.push(")");
+        _isnegated = true;
+    } else if (_isnegated && getNegationValue()) {
+        ins.pop();
+        let k = ins.pop();
+        k = k.substring(1, k.length);
+        ins.pop();
+        ins.push(k);
+        _isnegated = false;
+    }
+    display();
 }
 
-function resolvConsts() {
-    for (i = 0; i < ins.length; i++) {
+function resolveConsts() {
+    let _const = ["e", "π"];
 
+    for (i = 0; i < ins.length; i++) {
+        let curr = ins[i];
+        if (_const.includes(curr)) {
+            if (isOperand(ins[i - 1]) || ins[i - 1] === ")") {
+                ins.splice(i, 0, "x");
+                ins[i + 1] = (curr === _const[0]) ? Math.E : Math.PI;
+            } else if (ins[i - 1] === "-" || ins[i - 1] === "+") {
+                let dp = ins[i - 2];
+                if (dp === undefined || dp === null || dp === "(" || isOperator(dp) || dp[dp.length - 1] === "(") {
+                    let op = ins[i - 1];
+                    ins.splice(i - 1, 2, op + ((curr === _const[0]) ? Math.E : Math.PI));
+                }
+            }
+        }
     }
 }
 
 function Evaluate() {
-
-    var output = parseToPostfix(ins);
-    var result = Eval(output);
+    resolveConsts();
+    let output = parseToPostfix(ins);
+    let result = Eval(output);
     ins = [];
     ins.push(result);
+    _isnegated = false;
     display();
-    ins = [];
 }
 
 function Shift() {
-    var sb = document.getElementById("to_shift");
-    var _sin = document.getElementById("sin");
-    var _cos = document.getElementById("cos");
-    var _tan = document.getElementById("tan");
+    let sb = document.getElementById("to_shift");
+    let _sin = document.getElementById("sin");
+    let _cos = document.getElementById("cos");
+    let _tan = document.getElementById("tan");
+    let _e = document.getElementById("exp");
 
     if (shift_on === true) {
         _sin.value = "sin";
         _cos.value = "cos";
         _tan.value = "tan";
+        _e.value = "e";
         sb.style.color = "white";
         sb.style.backgroundColor = "steelblue";
         shift_on = false;
@@ -141,6 +173,7 @@ function Shift() {
         _sin.value = "sin¯¹";
         _cos.value = "cos¯¹";
         _tan.value = "tan¯¹";
+        _e.value = "eⁿ";
         sb.style.color = "red";
         sb.style.backgroundColor = "darkblue";
         shift_on = true;
@@ -149,10 +182,10 @@ function Shift() {
 
 //handles deletion//
 function Del() {
-    var top = peek(ins);
+    let top = peek(ins);
     if (top !== undefined) {
         if (isOperand(top)) {
-            var tp = top.substring(0, top.length - 1)
+            let tp = top.substring(0, top.length - 1)
             if (tp === "") {
                 ins.pop();
             } else {
@@ -169,15 +202,15 @@ function Del() {
 //clears input screen//
 function Clear() {
     ins = [];
+    _isnegated = false;
     display();
 }
 
 function display() {
-    var v = ins.join()
+    let v = ins.join();
     calc.display.value = st(v).toString();
 }
 
-var st = function (v) {
+let st = function (v) {
     return v.replace(/,/g, "");
 };
-
