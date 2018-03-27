@@ -37,12 +37,12 @@ operators = {
         }
     },
     "%": {
-        "pre": 7, "rule": 1, "unary": 1, "func": (n) => {
+        "pre": 6, "rule": 1, "unary": 1, "func": (n) => {
             return n / 100;
         }
     },
     "!": {
-        "pre": 7, "rule": 1, "unary": 1, "func": (n) => {
+        "pre": 6, "rule": 1, "unary": 1, "func": (n) => {
             let x = n;
             if (n === 0 || n === 1) {
                 return 1;
@@ -144,7 +144,7 @@ function parseToPostfix(_infix) {
         } else if (tok === "(") {
             _stack.push(tok);
         } else if (tok === ")") {
-            while (_stack.length > 0 && peek(_infix) !== "(") {
+            while (_stack.length > 0 && peek(_stack) !== "(") {
                 _post.push(_stack.pop());
             }
             _stack.pop();
@@ -152,7 +152,7 @@ function parseToPostfix(_infix) {
             a = tok;
             b = peek(_stack);
 
-            while (isOperator(b) && ((!operators[a].rule && (operators[a].pre <= operators[b].pre))
+            while (_stack.length > 0 && b !== "(" && ((!operators[a].rule && (operators[a].pre <= operators[b].pre))
                 || (operators[a].rule && (operators[a].pre < operators[b].pre)))) {
                 _post.push(_stack.pop());
                 b = peek(_stack);
@@ -167,12 +167,6 @@ function parseToPostfix(_infix) {
             _post.push(v);
         }
     }
-    for (let i = 0; i < _post.length; i++) {
-        if (_post[i] === "(" || _post[i] === ")") {
-            _post.splice(i, 1);
-        }
-    }
-
     return _post;
 }
 
