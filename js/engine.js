@@ -155,6 +155,7 @@ function parseToPostfix(_infix) {
             while (isOperator(b) && ((!operators[a].rule && (operators[a].pre <= operators[b].pre))
                 || (operators[a].rule && (operators[a].pre < operators[b].pre)))) {
                 _post.push(_stack.pop());
+                b = peek(_stack);
             }
             _stack.push(a);
         }
